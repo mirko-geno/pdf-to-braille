@@ -8,6 +8,10 @@ class Reader:
         self.titles = self.pdf.get_toc()
         self.page_count = self.pdf.page_count
 
+        self.__page_idx = 0
+        self.__block_idx = 0
+        self.__letter_idx = 0
+
     '''def page_data(self, page_num):
         links = self.pdf[page_num].get_links()
         page_text = self.pdf[page_num].get_text('text')
@@ -19,20 +23,29 @@ class Reader:
 
         return links, page_text, blocks, words, annotations, widgets, image'''
 
-    def advance(self):
-        for block_i, block in enumerate(blocks):
-            for word_i, word in enumerate(block[4]):
-                for letter in word:
-                    reg_time = time() # yo  no
-                    print(letter)
-                    while reg_time + 1/reading_freq > time():pass
+    def __advance(self):
+        BLOCK_TEXT = 4
+        while self.__page_idx < self.pdf.page_count:
+            reg_time = time()
+            self.__block_idx = 0
+            blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
+            while self.__block_idx < len(blocks):
+                self.__letter_idx = 0
+                while self.__letter_idx < len(blocks[self.__block_idx]):
+                    if time() > (reg_time + 1/self.reading_freq):
+                        print(blocks[self.__block_idx][self.__letter_idx])
+                        reg_time = time()
+                        print(f'letter: {self.__letter_idx}')
+                        self.__letter_idx += 1
+                print(f'block: {self.__block_idx}')
+                self.__block_idx += 1
+            print(f'page: {self.__page_idx}')
+            self.__page_idx += 1
+
 
     def read(self):
-        self.__page_i = 0
-        self.__block_i = 0
-        self.__word_i = 0
-        reg_time = time()
-
-        while True:
-            if time() >= reg_time + 1/reading_freq:
-                print()
+        try: self.__advance()
+        except KeyboardInterrupt:
+            print('Key interrupt')
+            sleep(10)
+            self.__advance()
