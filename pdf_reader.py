@@ -1,12 +1,15 @@
 import pymupdf
 from time import time, sleep
+from threading import Thread
+import keyboard
+
 
 class Reader:
     def __init__(self, path, reading_freq):
         self.pdf = pymupdf.open(path)
         self.reading_freq = reading_freq
         self.titles = self.pdf.get_toc()
-        self.page_count = self.pdf.page_count
+        self.stop_reading = False
 
         self.__page_idx = 0
         self.__block_idx = 0
@@ -25,27 +28,33 @@ class Reader:
 
     def __advance(self):
         BLOCK_TEXT = 4
-        while self.__page_idx < self.pdf.page_count:
+        while self.__page_idx < self.pdf.page_count and not self.stop_reading:
             reg_time = time()
             self.__block_idx = 0
             blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
+
             while self.__block_idx < len(blocks):
                 self.__letter_idx = 0
+                
                 while self.__letter_idx < len(blocks[self.__block_idx]):
                     if time() > (reg_time + 1/self.reading_freq):
                         print(blocks[self.__block_idx][self.__letter_idx])
                         reg_time = time()
-                        print(f'letter: {self.__letter_idx}')
+                        # print(f'letter: {self.__letter_idx}')
                         self.__letter_idx += 1
-                print(f'block: {self.__block_idx}')
+                # print(f'block: {self.__block_idx}')
                 self.__block_idx += 1
-            print(f'page: {self.__page_idx}')
+            # print(f'page: {self.__page_idx}')
             self.__page_idx += 1
 
 
     def read(self):
-        try: self.__advance()
-        except KeyboardInterrupt:
-            print('Key interrupt')
-            sleep(10)
-            self.__advance()
+        read_thread = Thread(target=self.__advance)
+        read_thread.start()
+
+        while read_thread.is_alive():
+            if keyboard.is_pressed('q'):
+                self.stop_reading = True
+                read_thread.join()
+
+        print('stopping reading')
