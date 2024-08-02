@@ -2,6 +2,7 @@ import pymupdf
 from time import time, sleep
 from threading import Thread
 import keyboard
+import re
 
 
 class Reader:
@@ -9,10 +10,12 @@ class Reader:
         self.pdf = pymupdf.open(path)
         self.reading_freq = reading_freq
         self.titles = self.pdf.get_toc()
-        self.stop_reading = False
+        self.cont_reading = True
+        self.__kill_thread = False
 
         self.__page_idx = 0
         self.__block_idx = 0
+        self.__word_idx = 0
         self.__letter_idx = 0
 
     '''def page_data(self, page_num):
@@ -26,37 +29,88 @@ class Reader:
 
         return links, page_text, blocks, words, annotations, widgets, image'''
 
+    
+    def __back_page(self):
+        if self.__page_idx > 0:
+            print('Going one page back')
+            self.__page_idx -= 1
+        else: print('Already in first page')
+
+    def __back_block(self):
+        if self.__block_idx > 0:
+            print('Going one page back')
+            self.__block_idx -= 1
+        else:
+            self.__back_page()
+
+    def __back_word(self):
+        if self.__word_idx > 0:
+            print('Going back one word')
+        else:
+            self.__back_block()
+        pass
+
+    def __back_letter(self):
+        if self.__letter_idx > 0:
+            print('Going back one letter')
+        else:
+            self.__back_word()
+
+
     def __advance(self):
         BLOCK_TEXT = 4
-        while self.__page_idx < self.pdf.page_count:
+        while not self.__kill_thread:
+            sleep(0.1)
             reg_time = time()
-            self.__block_idx = 0
-            blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
+            while self.__page_idx < self.pdf.page_count and self.cont_reading:
+                self.__block_idx = 0
+                blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
 
-            while self.__block_idx < len(blocks):
-                self.__letter_idx = 0
-                
-                while self.__letter_idx < len(blocks[self.__block_idx]) and not self.stop_reading:
-                    if time() > (reg_time + 1/self.reading_freq):
-                        print(f'stop reading = {self.stop_reading}')
-                        print(blocks[self.__block_idx][self.__letter_idx])
-                        reg_time = time()
-                        # print(f'letter: {self.__letter_idx}')
-                        self.__letter_idx += 1
-                # print(f'block: {self.__block_idx}')
-                self.__block_idx += 1
-            # print(f'page: {self.__page_idx}')
-            self.__page_idx += 1
+                while self.__block_idx < len(blocks) and self.cont_reading:
+                    self.__word_idx = 0
+                    block = blocks[self.__block_idx].replace('/n', ' ')
+                    block = re.findall(r'\S+', block)
+                    block = [word + ' ' for word in block[:-1]] + [block[-1]]
+
+                    while self.__word_idx < len(block) and self.cont_reading:
+                        self.__letter_idx = 0
+                        word = block[self.__word_idx]
+                        count = 0
+                        if not count:
+                            print(word)
+                            count +=1
+
+                        while self.__letter_idx < len(word) and self.cont_reading:
+                            if time() > (reg_time + 1/self.reading_freq):
+                                print(word[self.__letter_idx])
+                                reg_time = time()
+                                self.__letter_idx += 1
+                        self.__word_idx += 1                    
+                    self.__block_idx += 1
+                self.__page_idx += 1
 
 
     def read(self):
-        read_thread = Thread(target=self.__advance)
-        read_thread.start()
+        self.__read_thread = Thread(target=self.__advance)
+        self.__read_thread.start()
 
-        while read_thread.is_alive():
-            if keyboard.is_pressed('q'):
-                print('q was pressed')
-                self.stop_reading = True
-                read_thread.join()
+        while self.__read_thread.is_alive():
+            match keyboard.read_key():
+                case 'q':
+                    print('Quitting program')
+                    self.cont_reading = False
+                    self.__kill_thread = True
+                    self.__read_thread.join()
 
-        print('stopping reading')
+                case 'p':
+                    print('Pausing lecture')
+                    self.cont_reading = False
+                    sleep(0.05)
+
+                case 'r':
+                    print('Resuming lecture')
+                    self.cont_reading = True
+                    sleep(0.05)
+
+                case 'b':
+                    pass
