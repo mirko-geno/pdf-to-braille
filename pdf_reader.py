@@ -28,7 +28,7 @@ class Reader:
 
     def __advance(self):
         BLOCK_TEXT = 4
-        while self.__page_idx < self.pdf.page_count and not self.stop_reading:
+        while self.__page_idx < self.pdf.page_count:
             reg_time = time()
             self.__block_idx = 0
             blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
@@ -36,8 +36,9 @@ class Reader:
             while self.__block_idx < len(blocks):
                 self.__letter_idx = 0
                 
-                while self.__letter_idx < len(blocks[self.__block_idx]):
+                while self.__letter_idx < len(blocks[self.__block_idx]) and not self.stop_reading:
                     if time() > (reg_time + 1/self.reading_freq):
+                        print(f'stop reading = {self.stop_reading}')
                         print(blocks[self.__block_idx][self.__letter_idx])
                         reg_time = time()
                         # print(f'letter: {self.__letter_idx}')
@@ -54,6 +55,7 @@ class Reader:
 
         while read_thread.is_alive():
             if keyboard.is_pressed('q'):
+                print('q was pressed')
                 self.stop_reading = True
                 read_thread.join()
 
