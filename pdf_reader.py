@@ -18,41 +18,71 @@ class Reader:
         self.__word_idx = 0
         self.__letter_idx = 0
 
-    '''def page_data(self, page_num):
-        links = self.pdf[page_num].get_links()
-        page_text = self.pdf[page_num].get_text('text')
-        blocks = self.pdf[page_num].get_text('blocks')
-        words = self.pdf[page_num].get_text('words')
-        annotations = self.pdf[page_num].annots()
-        widgets = self.pdf[page_num].widgets()
-        image = self.pdf[page_num].get_pixmap()
 
-        return links, page_text, blocks, words, annotations, widgets, image'''
+    def __quit(self):
+        print('Quitting program')
+        self.cont_reading = False
+        self.__kill_thread = True
+        self.__read_thread.join()
 
+    def __pause(self):
+        print('Pausing lecture')
+        self.cont_reading = False
+        sleep(0.05)
     
+    def __resume(self):
+        print('Resuming lecture')
+        self.cont_reading = True
+        sleep(0.05)
+
+
+
+    def __last_block(self):
+        if self.__word_idx > 0:
+            self.__word_idx -= 1
+            self.__letter_idx = len(word)-1
+            # self.__resume()
+        else:
+            self.__back_block()
+
     def __back_page(self):
+        self.__pause()
+        self.__block_idx = 0
+        self.__word_idx = 0
+        self.__letter_idx = 0
         if self.__page_idx > 0:
             print('Going one page back')
             self.__page_idx -= 1
         else: print('Already in first page')
+        # self.__resume()
 
     def __back_block(self):
+        self.__pause()
         if self.__block_idx > 0:
             print('Going one page back')
+            self.__word_idx = 0
+            self.__letter_idx = 0
             self.__block_idx -= 1
+            # self.__resume()
         else:
             self.__back_page()
 
     def __back_word(self):
+        self.__pause()
         if self.__word_idx > 0:
             print('Going back one word')
+            self.__letter_idx = 0
+            self.__word_idx -= 1
+            # self.__resume()
         else:
             self.__back_block()
-        pass
 
     def __back_letter(self):
+        self.__pause()
         if self.__letter_idx > 0:
             print('Going back one letter')
+            self.__letter_idx -= 1
+            # self.__resume()
         else:
             self.__back_word()
 
@@ -97,20 +127,17 @@ class Reader:
         while self.__read_thread.is_alive():
             match keyboard.read_key():
                 case 'q':
-                    print('Quitting program')
-                    self.cont_reading = False
-                    self.__kill_thread = True
-                    self.__read_thread.join()
-
+                    self.__quit()
                 case 'p':
-                    print('Pausing lecture')
-                    self.cont_reading = False
-                    sleep(0.05)
-
+                    self.__pause()
                 case 'r':
-                    print('Resuming lecture')
-                    self.cont_reading = True
-                    sleep(0.05)
-
-                case 'b':
-                    pass
+                    self.__resume()
+                case 'f':
+                    self.__back_page()
+                case 'g':
+                    self.__back_block()
+                case 'h':
+                    self.__back_word()
+                case 'j':
+                    self.__back_letter()
+            sleep(0.05)
