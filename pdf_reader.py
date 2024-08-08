@@ -35,6 +35,11 @@ class Reader:
         self.cont_reading = True
         sleep(0.05)
 
+    
+    def __forward(self, key):
+        if key == 'c':
+            
+
 
 
     def __last_block(self):
