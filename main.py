@@ -1,4 +1,4 @@
-from pdf_reader import Reader
+from reader_remade import Reader
 
 
 def main():
