@@ -42,54 +42,102 @@ class Reader:
         if key == 'c':
             pass
 
-    def __get_word(self):
-        self.__word = self.__block[self.__word_idx]
+
+    def __get_page_blocks(self):
+        self.__blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
 
     
     def __get_block(self):
-        self.__blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
         self.__block = self.__blocks[self.__block_idx].replace('/n', ' ')
         self.__block = re.findall(r'\S+', self.__block)
         self.__block = [word + ' ' for word in self.__block[:-1]] + [self.__block[-1]]
 
 
+    def __get_word(self):
+        self.__word = self.__block[self.__word_idx]
+
+
+    def __back_page(self, letter_carry=False, word_carry=False, block_carry=False):
+        if self.__page_idx:
+            self.__page_idx -= 1
+
+            if not (block_carry or word_carry or letter_carry):
+                self.__block_idx = 0
+                self.__word_idx = 0
+                self.__letter_idx = 0
+
+            elif block_carry and not (word_carry or letter_carry):
+                self.__word_idx = 0
+                self.__letter_idx = 0
+                self.__get_page_blocks()
+                self.__block_idx = len(self.__blocks) -1
+
+            elif block_carry and word_carry and not letter_carry:
+                self.__letter_idx = 0
+                self.__get_page_blocks()
+                self.__block_idx = len(self.__blocks) -1
+                self.__get_block()
+                self.__word_idx = len(self.__block) -1
+
+            elif block_carry and word_carry and letter_carry:
+                self.__get_page_blocks()
+                self.__block_idx = len(self.__blocks) -1
+                self.__get_block()
+                self.__word_idx = len(self.__block) -1
+                self.__get_word()
+                self.__letter_idx = len(self.__word) - 1
+
+        else: 
+
+
     def __back_block(self, letter_carry=False, word_carry=False):
-        if self.__block_idx and not (word_carry and letter_carry):
-            self.__word_idx = 0
-            self.__letter_idx = 0
+        if self.__block_idx:
             self.__block_idx -= 1
 
-        elif self.__block_idx and word_carry and not letter_carry:
-            self.__block_idx -= 1
-            self.__get_block()
-            self.__word_idx = len(self.__block) -1
+            if not (word_carry or letter_carry):
+                self.__word_idx = 0
+                self.__letter_idx = 0
 
-        elif self.__block_idx and word_carry and letter_carry:
-            self.__block_idx -= 1
-            self.__get_block()
-            self.__word_idx = len(self.__block) - 1
-            self.__get_word()
-            self.__word_idx = len(self.__word) - 1
+            elif word_carry and not letter_carry:
+                self.__letter_idx = 0
+                self.__get_block()
+                self.__word_idx = len(self.__block) -1
 
+            elif word_carry and letter_carry:
+                self.__get_block()
+                self.__word_idx = len(self.__block) - 1
+                self.__get_word()
+                self.__letter_idx = len(self.__word) - 1
+
+        else:
+            if not (letter_carry or word_carry):
+                self.__back_page(block_carry=True)
+
+            elif word_carry and not letter_carry:
+                self.__back_page(word_carry=True, block_carry=True)
+
+            elif word_carry and letter_carry:
+                self.__back_page(letter_carry=True, word_carry=True, block_carry=True)
 
 
     def __back_word(self, letter_carry=False):
-        if self.__word_idx and not letter_carry:
-            self.__letter_idx = 0
+        if self.___word_idx:
             self.__word_idx -= 1
-        
-        elif self.__word_idx and letter_carry:
-            self.__word_idx -= 1
-            self.__get_word()
-            self.__letter_idx = len(self.__word) -1
 
-        elif not self.__word_idx and not letter_carry:
-            self.__back_block(word_carry=True)
+            if not letter_carry:
+                self.__letter_idx = 0
 
-        elif not self.__word_idx and letter_carry:
-            self.__back_block(letter_carry=True, word_carry=True)
-            # self.__letter_idx = len(self.__get_block()) -1 # Get to last letter of 
+            elif letter_carry:
+                self.__get_word()
+                self.__letter_idx = len(self.__word) -1
 
+        else:
+            if not letter_carry:
+                self.__back_block(word_carry=True)
+
+            elif letter_carry:
+                self.__back_block(letter_carry=True, word_carry=True)
+            
     
     def __back_letter(self):
         if self.__letter_idx:
