@@ -23,39 +23,87 @@ class Reader:
         self.__letter_idx = 0
 
 
-    def __quit(self):
+    def quit(self):
         print('Quitting program')
         self.cont_reading = False
         self.__kill_thread = True
         self.__read_thread.join()
 
-    def __pause(self):
+    def pause(self):
         print('Pausing lecture')
         self.cont_reading = False
         sleep(OPERATION_DELAY)
     
-    def __resume(self):
+    def resume(self):
         print('Resuming lecture')
         self.cont_reading = True
         sleep(OPERATION_DELAY)
-
-    def __forward(self, key):
-        if key == 'c':
-            pass
 
 
     def __get_page_blocks(self):
         self.__blocks = [block[BLOCK_TEXT] for block in self.pdf[self.__page_idx].get_text('blocks')]
 
-    
     def __get_block(self):
         self.__block = self.__blocks[self.__block_idx].replace('/n', ' ')
         self.__block = re.findall(r'\S+', self.__block)
         self.__block = [word + ' ' for word in self.__block[:-1]] + [self.__block[-1]]
 
-
     def __get_word(self):
         self.__word = self.__block[self.__word_idx]
+
+
+    def __forward_page(self):
+        if self.__page_idx < self.pdf.page_count -1:
+            self.__page_idx += 1
+            self.__block_idx = 0
+            self.__word_idx = 0
+            self.__letter_idx = 0
+        else:
+            print('Unable to forward more')
+
+    def __forward_block(self):
+        if self.__block_idx < len(self.__blocks) -1:
+            self.__block_idx += 1
+            self.__word_idx = 0
+            self.__letter_idx = 0
+        else:
+            self.__forward_page()
+    
+    def __forward_word(self):
+        if self.__word_idx < len(self.__block) -1:
+            self.__word_idx += 1
+            self.__letter_idx = 0
+        else:
+            self.__forward_block()
+
+
+
+    def __forward_letter(self):
+        if self.__letter_idx < len(self.__word) -1:
+            self.__letter_idx += 1
+        else:
+            self.__forward_word()
+
+
+
+    def forward(self):
+        self.pause()
+        print('Select how to forward:\np for page | b for block | w for wordd | l for letter')
+        print(f'page_idx: {self.__page_idx}\nblock_idx: {self.__block_idx}\nword_idx: {self.__word_idx}\nletter_idx: {self.__letter_idx}')
+        match keyboard.read_key():
+            case 'p':
+                print('forward page')
+                self.__forward_page()
+            case 'b':
+                print('forward block')
+                self.__forward_block()
+            case 'w':
+                print('forward word')
+                self.__forward_word()
+            case 'l':
+                print('forward letter')
+                self.__forward_letter()
+        sleep(KEY_DELAY)
 
 
     def __back_page(self, letter_carry=False, word_carry=False, block_carry=False):
@@ -126,7 +174,6 @@ class Reader:
             elif word_carry and letter_carry:
                 self.__back_page(letter_carry=True, word_carry=True, block_carry=True)
 
-
     def __back_word(self, letter_carry=False):
         print(f'Word_idx: {self.__word_idx}')
         if self.__word_idx:
@@ -145,7 +192,6 @@ class Reader:
 
             elif letter_carry:
                 self.__back_block(letter_carry=True, word_carry=True)
-            
     
     def __back_letter(self):
         if self.__letter_idx:
@@ -153,8 +199,9 @@ class Reader:
         else: self.__back_word(letter_carry=True)
 
 
-    def __back(self):
-        self.__pause()
+    def back(self):
+        self.pause()
+        print('Select how to back:\np for page | b for block | w for word | l for letter')
         print(f'page_idx: {self.__page_idx}\nblock_idx: {self.__block_idx}\nword_idx: {self.__word_idx}\nletter_idx: {self.__letter_idx}')
         match keyboard.read_key():
             case 'p':
@@ -228,11 +275,13 @@ class Reader:
         while self.__read_thread.is_alive():
             match keyboard.read_key():
                 case 'q':
-                    self.__quit()
+                    self.quit()
                 case 'p':
-                    self.__pause()
+                    self.pause()
                 case 'r':
-                    self.__resume()
+                    self.resume()
                 case 'b':
-                    self.__back()
+                    self.back()
+                case 'f':
+                    self.forward()
             sleep(KEY_DELAY)
