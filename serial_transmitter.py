@@ -1,8 +1,16 @@
 import serial
+import time
 
-class Transmitter():
-    def __init__(self, port):
-        self.port = serial.Serial(port)
-    
-    def send(self, letter):
-        self.port.write(letter)
+# Configuración del puerto serial
+ser = serial.Serial('/dev/ttyUSB0', 115200) 
+time.sleep(2)  # Espera a que se establezca la conexión
+
+try:
+    while True:
+        ser.write(b'TOGGLE_LED\n')  # Envía el mensaje al ESP8266
+        time.sleep(2)  # Envía un mensaje cada 2 segundos
+        print('sent')
+except KeyboardInterrupt:
+    ser.close()  # Cierra el puerto serial al finalizar
+    print('finishing...')
+

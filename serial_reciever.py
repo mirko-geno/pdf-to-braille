@@ -1,14 +1,13 @@
-import serial
+from machine import Pin, UART #type: ignore
 from time import sleep
 
-ser = serial.Serial('/dev/ttyUSB0', 9600)
-print('banana')
-   
-# Send character 'S' to start the program
-ser.write(b'S')
+led=Pin(2,Pin.OUT)
+uart = UART(0, 460800)
+uart.init()
 
-# Read line   
+value = 0
 while True:
-    print('banan2')
-    bs = ser.readline()
-    print(f'BS:{bs}')
+    if uart.any():
+        led.value(value)
+        value = not value
+    sleep(0.1)
