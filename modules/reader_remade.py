@@ -3,8 +3,8 @@ from time import time, sleep
 from threading import Thread
 import keyboard
 import re
-from translator import Braille_translator
-from serial_transmitter import Transmitter
+from modules.translator import Braille_translator
+from modules.serial_transmitter import Transmitter
 
 BLOCK_TEXT = 4
 KEY_DELAY = 0.05
