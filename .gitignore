@@ -1,2 +1,7 @@
+__pycache__
+*pyc
+.gitignore
 *.pdf
 test.py
+__pycache__
+*pyc
