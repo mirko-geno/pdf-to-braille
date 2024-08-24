@@ -1,0 +1,5 @@
+python                    3.12.4          h194c7f8_0_cpython    conda-forge
+
+keyboard                  0.13.5          py312h7900ff3_3    conda-forge
+pymupdf                   1.24.5          py312hf930fe3_1    conda-forge
+mupdf                     1.24.5          py312h38e61ba_1    conda-forge
