@@ -1,11 +1,13 @@
 import machine
 import time
-import sys
 
-led = machine.Pin(2, machine.Pin.OUT)  # Configura el pin GPIO2 como salida (LED integrado)
-led.value(1)  # Apaga el LED (los LED suelen estar activos en bajo en el ESP8266)
+# Configuración del puerto serie
+uart = machine.UART(0, baudrate=9600)  # Usa UART0 con baudrate de 9600
+led = machine.Pin(2, machine.Pin.OUT)  # El LED interno está en el pin GPIO 2 en el ESP8266
 
 while True:
-    if sys.stdin.read() == 'TOGGLE_LED\n':  # Lee el mensaje recibido
+    if uart.any():  # Verifica si hay datos en el buffer serial
+        uart.read(1)  # Lee 1 byte (el dato enviado)
         led.value(not led.value())  # Alterna el estado del LED
-    time.sleep(0.0001)  # Pequeña pausa para evitar saturación de la CPU
+        print("Dato recibido, LED alternado")
+        time.sleep(0.1)  # Añade un pequeño retraso para evitar posibles rebotes
