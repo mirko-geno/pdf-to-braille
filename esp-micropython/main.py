@@ -10,11 +10,11 @@ flash_button = Pin(0, Pin.IN, Pin.PULL_UP)
 micropython.kbd_intr(-1)
 
 while flash_button.value():
-    ch = sys.stdin.read(1)
-
-    if ch == 'Q':
-        led.value(not led.value())
-    else:
-        pass
-
+    if sys.stdin in select.select([sys.stdin], [], [], 0)[0]: #only reads if theres something in the port
+        ch = sys.stdin.read(1)
+        if ch == 'Q':
+            led.value(not led.value())
+        else:
+            pass
     sleep(0.1)
+    
