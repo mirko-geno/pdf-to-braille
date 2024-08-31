@@ -1,13 +1,20 @@
+from machine import Pin
+from time import sleep
 import micropython
-import machine
 import select
 import sys
 
-led = machine.Pin(2, machine.Pin.OUT)  # El LED interno está en el pin GPIO 2 en el ESP8266
+led = Pin(2, Pin.OUT)
+flash_button = Pin(0, Pin.IN, Pin.PULL_UP)
+
 micropython.kbd_intr(-1)
 
-while True:
-  while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:        
+while flash_button.value():
     ch = sys.stdin.read(1)
-    if ch:
-        led.value(not led.value())  # Alterna el estado del LED
+
+    if ch == 'Q':
+        led.value(not led.value())
+    else:
+        pass
+
+    sleep(0.1)
