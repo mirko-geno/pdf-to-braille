@@ -3,7 +3,6 @@ from time import time, sleep
 from threading import Thread
 import keyboard
 import re
-from modules.translator import Braille_translator
 from modules.serial_transmitter import Transmitter
 
 BLOCK_TEXT = 4
@@ -11,10 +10,9 @@ KEY_DELAY = 0.05
 OPERATION_DELAY = 0.3
 
 class Reader:
-    def __init__(self, path, reading_freq, port):
+    def __init__(self, path, reading_freq, port, baudrate):
         self.pdf = pymupdf.open(path)
-        self.translator = Braille_translator()
-        self.transmitter = Transmitter(port)
+        self.transmitter = Transmitter(port, baudrate)
         self.reading_freq = reading_freq
         self.titles = self.pdf.get_toc()
         self.cont_reading = True
@@ -258,9 +256,8 @@ class Reader:
         while self.__letter_idx < len(self.__word) and self.cont_reading:
             if time() > (self.__reg_time + 1/self.reading_freq):
                 letter = self.__word[self.__letter_idx]
-                translation = self.translator.translate(letter)
-                print(f'{letter},   {bin(translation)}')
-                self.transmitter(letter)
+                self.transmitter.send(letter)
+                print(letter)
                 self.__reg_time = time()
                 if self.cont_reading:
                     self.__letter_idx += 1
