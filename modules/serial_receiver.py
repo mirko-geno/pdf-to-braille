@@ -1,7 +1,5 @@
+# boot
 from machine import Pin
-from time import sleep
-import select
-import sys
 from micropython import kbd_intr, const
 kbd_intr(-1)
 
@@ -21,6 +19,10 @@ led_pins = [Pin(10, Pin.OUT),
             Pin(12, Pin.OUT),]
 
 
+# main
+from time import sleep
+import select
+import sys
 
 while flash_button.value():
     if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:  # Only reads if theres something in the port
