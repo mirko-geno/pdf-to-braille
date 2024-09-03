@@ -16,3 +16,6 @@ while flash_button.value():
             led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
 
     sleep(0.1)
+
+for led in led_pins:
+    led.value(0)

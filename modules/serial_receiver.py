@@ -4,7 +4,7 @@ from micropython import kbd_intr, const
 kbd_intr(-1)
 
 OUT_LEDS = const(8)
-BITS = [10, 12, 16, 5, 13, 4, 15, 14]
+BITS = [1, 12, 16, 5, 13, 4, 15, 14]
 
 '''
 [BIT 7 = PIN 14] [BIT 5 = PIN 4 ]
@@ -47,3 +47,6 @@ while flash_button.value():
             led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
 
     sleep(0.1)
+
+for led in led_pins:
+    led.value(0)
