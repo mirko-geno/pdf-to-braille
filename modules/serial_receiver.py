@@ -4,20 +4,18 @@ from micropython import kbd_intr, const
 kbd_intr(-1)
 
 OUT_LEDS = const(8)
-BITS = const([14, 15, 4, 13, 5, 16, 12, 10])
+BITS = [10, 12, 16, 5, 13, 4, 15, 14]
 
 '''
-[BIT 7 = PIN 10] [BIT 5 = PIN 16]
-[BIT 6 = PIN 12] [BIT 4 = PIN 5 ]
-[BIT 3 = PIN 13] [BIT 2 = PIN 4 ]
-[BIT 1 = PIN 15] [BIT 0 = PIN 14]
+[BIT 7 = PIN 14] [BIT 5 = PIN 4 ]
+[BIT 6 = PIN 15] [BIT 4 = PIN 13]
+[BIT 3 = PIN 5 ] [BIT 2 = PIN 16]
+[BIT 1 = PIN 12] [BIT 0 = PIN 10]
 
 '''
 
 internal_led = Pin(2, Pin.OUT)
 flash_button = Pin(0, Pin.IN, Pin.PULL_UP)
-
-
 led_pins = [Pin(BITS[7], Pin.OUT),
             Pin(BITS[6], Pin.OUT),
             Pin(BITS[5], Pin.OUT),
@@ -26,6 +24,9 @@ led_pins = [Pin(BITS[7], Pin.OUT),
             Pin(BITS[2], Pin.OUT),
             Pin(BITS[1], Pin.OUT),
             Pin(BITS[0], Pin.OUT)]
+
+for led in led_pins:
+    led.value(0)
 
 
 # main
@@ -43,6 +44,6 @@ while flash_button.value():
         for i in range(OUT_LEDS):
             led_state = (data_int >> i) & 1  # Desplaza el bit i hacia la derecha y extrae el bit menos significativo
             print(f'{i}. led_state: {led_state}')
-            # led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
+            led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
 
     sleep(0.1)

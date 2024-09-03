@@ -1,7 +1,6 @@
 from serial import Serial
 from modules.translator import Braille_translator
 
-
 class Transmitter():
     def __init__(self, port, baudrate):
         self.serial = Serial(port, baudrate) # Must use baudrate of 115200 if using ESP8266
@@ -15,3 +14,7 @@ class Transmitter():
 
     def close(self):
         self.serial.close()
+
+if __name__ == '__main__':
+    t = Transmitter(port='/dev/ttyUSB0', baudrate=115200)
+    t.send('m')

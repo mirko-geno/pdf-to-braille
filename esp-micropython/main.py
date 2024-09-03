@@ -13,6 +13,6 @@ while flash_button.value():
         for i in range(OUT_LEDS):
             led_state = (data_int >> i) & 1  # Desplaza el bit i hacia la derecha y extrae el bit menos significativo
             print(f'{i}. led_state: {led_state}')
-            # led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
+            led_pins[i].value(led_state)  # Establece el estado del LED basado en el bit correspondiente
 
     sleep(0.1)
