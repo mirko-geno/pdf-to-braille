@@ -4,6 +4,7 @@ try:
 except ModuleNotFoundError:
     from translator import Braille_translator
 
+
 class Transmitter():
     def __init__(self, port, baudrate):
         self.serial = Serial(port, baudrate) # Must use baudrate of 115200 if using ESP8266
