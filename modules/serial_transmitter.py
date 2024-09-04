@@ -1,5 +1,8 @@
 from serial import Serial
-from modules.translator import Braille_translator
+try:
+    from modules.translator import Braille_translator
+except ModuleNotFoundError:
+    from translator import Braille_translator
 
 class Transmitter():
     def __init__(self, port, baudrate):
@@ -14,6 +17,7 @@ class Transmitter():
 
     def close(self):
         self.serial.close()
+
 
 if __name__ == '__main__':
     t = Transmitter(port='/dev/ttyUSB0', baudrate=115200)
