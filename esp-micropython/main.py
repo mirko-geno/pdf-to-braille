@@ -8,7 +8,8 @@ while flash_button.value():
         byte = sys.stdin.buffer.read(1)  # Reads a byte from the serial port
         data_int = int.from_bytes(byte, 'big')
         # print(f'Byte received: {byte}')
-        internal_led.value(not internal_led.value())
+        internal_led.value(0)
+        internal_led.value(1)
 
         for i in range(OUT_LEDS):
             led_state = (data_int >> i) & 1  # Desplaza el bit i hacia la derecha y extrae el bit menos significativo
