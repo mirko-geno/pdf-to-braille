@@ -244,7 +244,7 @@ class Reader:
             self.__word = self.__block[self.__word_idx]
             count = 0
             if not count:
-                print(f'word: {self.__word},   word_idx: {self.__word_idx}')
+                print(f'word: {self.__word}   word_idx: {self.__word_idx}')
                 count += 1
             self.__adv_letter()
             if self.cont_reading:
