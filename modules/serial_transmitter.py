@@ -20,6 +20,6 @@ class Transmitter():
         self.serial.close()
 
 
-'''if __name__ == '__main__':
+if __name__ == '__main__':
     t = Transmitter(port='/dev/ttyUSB0', baudrate=115200)
-    t.send('a')'''
+    t.send('m')
