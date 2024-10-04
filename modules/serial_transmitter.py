@@ -5,13 +5,13 @@ except ModuleNotFoundError:
     from translator import Braille_translator
 
 
-class Transmitter():
+class Transmitter(Braille_translator):
     def __init__(self, port, baudrate):
+        super().__init__()
         self.serial = Serial(port, baudrate) # Must use baudrate of 115200 if using ESP8266
-        self.translator = Braille_translator()
 
     def send(self, letter):
-        data = self.translator.translate(letter)
+        data = self.translate(letter)
         data = data.to_bytes(1, 'big')  # bits to byte object
         self.serial.write(data)
         print(f'Translation sent: {data}')

@@ -9,10 +9,10 @@ BLOCK_TEXT = 4
 KEY_DELAY = 0.05
 OPERATION_DELAY = 0.3
 
-class Reader:
+class Reader(Transmitter):
     def __init__(self, path, reading_freq, port, baudrate):
+        super().__init__(port, baudrate)
         self.pdf = pymupdf.open(path)
-        self.transmitter = Transmitter(port, baudrate)
         self.reading_freq = reading_freq
         self.titles = self.pdf.get_toc()
         self.cont_reading = True
@@ -256,7 +256,7 @@ class Reader:
         while self.__letter_idx < len(self.__word) and self.cont_reading:
             if time() > (self.__reg_time + 1/self.reading_freq):
                 letter = self.__word[self.__letter_idx]
-                self.transmitter.send(letter)
+                self.send(letter)
                 print(letter)
                 self.__reg_time = time()
                 if self.cont_reading:
