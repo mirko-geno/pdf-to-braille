@@ -3,18 +3,32 @@ from machine import Pin
 from micropython import kbd_intr, const
 kbd_intr(-1)
 
-OUT_LEDS = const(8)
-PINS = [14, 15, 4, 13, 5, 16, 12, 1]
 '''
+for esp8266:
 [BIT 7 = PIN 14] [BIT 5 = PIN 4 ]
 [BIT 6 = PIN 15] [BIT 4 = PIN 13]
 [BIT 3 = PIN 5 ] [BIT 2 = PIN 16]
 [BIT 1 = PIN 12] [BIT 0 = PIN 1 ]
 
-'''
+PINS = [14, 15, 4, 13, 5, 16, 12, 1]
 internal_led = Pin(2, Pin.OUT)
 flash_button = Pin(0, Pin.IN, Pin.PULL_UP)
+'''
+
+# for raspberry pi pico w
+'''
+[BIT 7 = PIN 18] [BIT 5 = PIN 13]
+[BIT 6 = PIN 19] [BIT 4 = PIN 12]
+[BIT 3 = PIN 20] [BIT 2 = PIN 11]
+[BIT 1 = PIN 21] [BIT 0 = PIN 10]
+'''
+
+
+OUT_LEDS = const(8)
+PINS = [18, 19, 13, 12, 20, 11, 21, 10]
+internal_led = Pin("LED", Pin.OUT)
 led_pins = [Pin(pin, Pin.OUT) for pin in PINS]
+stop_button = Pin(28, Pin.IN)
 
 for led in led_pins:
     led.value(0)
@@ -25,7 +39,7 @@ from time import sleep
 import select
 import sys
 
-while flash_button.value():
+while stop_button.value() == 0:
     if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:  # Only reads if theres something in the port
         byte = sys.stdin.buffer.read(1)  # Reads a byte from the serial port
         data_int = int.from_bytes(byte, 'big')

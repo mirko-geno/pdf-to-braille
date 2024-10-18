@@ -21,5 +21,5 @@ class Transmitter(Braille_translator):
 
 
 if __name__ == '__main__':
-    t = Transmitter(port='/dev/ttyUSB0', baudrate=115200)
-    t.send('m')
+    t = Transmitter(port='/dev/ttyACM0', baudrate=115200)
+    t.send("a")
