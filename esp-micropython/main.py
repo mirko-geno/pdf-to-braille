@@ -12,7 +12,7 @@ while stop_button.value():
 
         for i in range(OUT_LEDS):
             led_state = (data_int >> i) & 1  # Shift the i-th bit to the right and extract the least significant bit
-            print(f'{i}. led_state: {led_state}')
+            # print(f'{i}. led_state: {led_state}')
             led_pins[i].value(led_state)
 
         del byte, data_int, led_state
