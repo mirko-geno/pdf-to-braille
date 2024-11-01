@@ -27,7 +27,7 @@ class Reader(Transmitter):
         print('Quitting program')
         self.cont_reading = False
         self.__kill_thread = True
-        self.__read_thread.join()
+        return
 
     def pause(self):
         print('Pausing lecture')
@@ -232,7 +232,8 @@ class Reader(Transmitter):
         while self.__block_idx < len(self.__blocks) and self.cont_reading:
             self.__block = self.__blocks[self.__block_idx].replace('/n', ' ')
             self.__block = re.findall(r'\S+', self.__block)
-            self.__block = [word + ' ' for word in self.__block[:-1]] + [self.__block[-1]]   
+            if len(self.__block):
+                self.__block = [word + ' ' for word in self.__block[:-1]] + [self.__block[-1]]   
             self.__adv_word()
             if self.cont_reading:
                 self.__word_idx = 0            
@@ -268,6 +269,9 @@ class Reader(Transmitter):
             sleep(0.1)
             self.__reg_time = time()
             self.__adv_page()
+
+            print("Finished reading\nClosing program...")
+            self.quit()
 
 
     def read(self):
