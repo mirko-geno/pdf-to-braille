@@ -270,8 +270,9 @@ class Reader(Transmitter):
             self.__reg_time = time()
             self.__adv_page()
 
-            print("Finished reading\nClosing program...")
-            self.quit()
+            if self.__kill_thread:
+                print("Finished reading\nClosing program...")
+                self.quit()
 
 
     def read(self):
